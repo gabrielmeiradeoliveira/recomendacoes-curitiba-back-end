@@ -1,6 +1,8 @@
 import time
 import random
 import json
+import traceback
+import datetime
 import pandas as pd
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -12,15 +14,15 @@ options.add_argument('start-maximized')
 options.add_argument('--disable-extensions')
 options.add_argument('--disable-popup-blocking')
 
+NUMERO_PAGINA_ATUAL = 30
+URL_ATUAL = f'https://www.tripadvisor.com.br/Search?geo=303441&q=restaurante&queryParsed=true&searchSessionId=0011633f21f0c492.ssid&searchNearby=false&sid=28B8593E5467463C9F037D6A034A5E081680103846830&blockRedirect=true&rf=4&ssrc=m&o={NUMERO_PAGINA_ATUAL}'
 
 try:
     # Define o número de páginas que desejamos buscar
-    numero_pagina = 30
-
     # Itera sobre a lista de números de página e coleta informações de cada página de resultados da busca
     while True:
         # Acessa a página de resultados da busca
-        driver.get(f'https://www.tripadvisor.com.br/Search?geo=303441&q=restaurante&queryParsed=true&searchSessionId=0011633f21f0c492.ssid&searchNearby=false&sid=28B8593E5467463C9F037D6A034A5E081680103846830&blockRedirect=true&rf=4&ssrc=m&o={numero_pagina}')
+        driver.get(URL_ATUAL)
 
         # Espera até que a página carregue completamente
         time.sleep(random.randint(5, 10))
@@ -107,14 +109,28 @@ try:
             }
             locais.append(local)
 
-        numero_pagina+= 30
-        driver.get(f'https://www.tripadvisor.com.br/Search?geo=303441&q=restaurante&queryParsed=true&searchSessionId=0011633f21f0c492.ssid&searchNearby=false&sid=28B8593E5467463C9F037D6A034A5E081680103846830&blockRedirect=true&rf=4&ssrc=m&o={numero_pagina}')
+        NUMERO_PAGINA_ATUAL+= 30
+        driver.get(URL_ATUAL)
 
         # Salva as avaliações coletadas em um arquivo JSON externo
-        if numero_pagina > 90:
+        if NUMERO_PAGINA_ATUAL > 90:
             with open('locais.json', 'w', encoding='utf-8') as f:
                 json.dump(locais, f, ensure_ascii=False)
                 driver.quit()
-except:
-    print('erro')
-    driver.close()
+
+except Exception as error:
+    # obtém a data e hora atual
+    agora = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    # cria o dicionário de log
+    log = {
+        "data_hora": agora,
+        "erro": str(error),
+        "url_atual": URL_ATUAL
+    }
+    # escreve o novo log no arquivo
+    with open('logs.json', 'a') as f:
+        f.write(json.dumps(log) + '\n')
+    # fecha o driver
+    # (é necessário colocar o driver.close() em um bloco finally)
+    
+        driver.close()
