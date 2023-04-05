@@ -1,72 +1,44 @@
 import json
-from textblob import TextBlob
+import nltk
+from nltk.sentiment import SentimentIntensityAnalyzer
 
-def get_best_local(data, sentiment):
-    """
-    Retorna o melhor local com base no sentimento médio dos comentários e na pontuação de sentimento da frase de entrada.
-    """
-    best_score = -float('inf')
-    best_local = None
-    for local in data:
-        reviews = local['reviews']
-        if not reviews:
-            continue
+# carregar o arquivo JSON
+with open('locais.json', encoding='utf-8' ) as f:
+    data = json.load(f)
 
-        local_sentiment = sum(TextBlob(review['content']).sentiment.polarity for review in reviews) / len(reviews)
-        score = local_sentiment + sentiment
-        if score > best_score:
-            best_score = score
-            best_local = local
+# inicializar o analisador de sentimentos
+sia = SentimentIntensityAnalyzer()
 
-    return best_local
-
-def print_local_info(local):
-    """Imprime informações do local"""
-    name = local['name']
-    address = local['address']
-    phone = local['phone']
-    cuisine = local['cuisine']
-    price = local['price']
-    print('Restaurante:')
-    print('  Nome:', name)
-    print('  Endereço:', address)
-    print('  Telefone:', phone)
-    print('  Tipo de cozinha:', cuisine)
-    print('  Preço:', price)
-
-def print_reviews(reviews, sentiment):
-    """Imprime comentários relevantes com base no sentimento"""
-    if sentiment > 0:
-        print('\nComentários positivos:')
-        relevant_reviews = [review['content'] for review in reviews if TextBlob(review['content']).sentiment.polarity > 0]
-    elif sentiment < 0:
-        print('\nComentários negativos:')
-        relevant_reviews = [review['content'] for review in reviews if TextBlob(review['content']).sentiment.polarity < 0]
+# iterar sobre cada restaurante
+for restaurante in data:
+    # iterar sobre cada avaliação
+    for avaliacao in restaurante['reviews']:
+        # obter o texto da avaliação
+        texto = avaliacao['content']
+        # tokenizar o texto
+        tokens = nltk.word_tokenize(texto)
+        # calcular o sentimento da avaliação
+        sentimento = sia.polarity_scores(texto)['compound']
+        # adicionar o sentimento à avaliação
+        avaliacao['sentimento'] = sentimento
+    
+    # adicionar o número de avaliações positivas, negativas e neutras
+    n_pos = len([a for a in restaurante['reviews'] if a['sentimento'] > 0])
+    n_neg = len([a for a in restaurante['reviews'] if a['sentimento'] < 0])
+    n_neu = len([a for a in restaurante['reviews'] if a['sentimento'] == 0])
+    restaurante['n_pos'] = n_pos
+    restaurante['n_neg'] = n_neg
+    restaurante['n_neu'] = n_neu
+    
+        # adicionar o sentimento geral do restaurante
+    total_sentimento = sum([a['sentimento'] for a in restaurante['reviews']])
+    if len(restaurante['reviews']) > 0:
+        sentimento_medio = total_sentimento / len(restaurante['reviews'])
     else:
-        print('\nAlguns comentários:')
-        relevant_reviews = [review['content'] for review in reviews[:5]]
-    for review in relevant_reviews:
-        print(review)
+        sentimento_medio = 0 # ou "sem classificação"
+    restaurante['sentimento_medio'] = sentimento_medio
 
-def main():
-    """Função principal para executar o programa"""
-    # ler o arquivo JSON
-    with open('locais.json') as f:
-        data = json.load(f)
-
-    # permitir que o usuário insira uma frase
-    sentence = input('Digite uma frase para analisar: ').strip()
-
-    # realizar a análise de sentimento
-    blob = TextBlob(sentence)
-    sentiment = blob.sentiment.polarity
-
-    # encontrar o melhor local com base no sentimento médio dos comentários e na pontuação de sentimento da frase de entrada
-    best_local = get_best_local(data, sentiment)
-
-    # imprimir informações do melhor local e comentários relevantes
-    print_local_info(best_local)
-    print_reviews(best_local['reviews'], sentiment)
-
-if __name__ == '__main__':
-    main()
+    
+# salvar o arquivo JSON modificado
+with open('restaurante_meu.json', 'w', encoding='utf-8') as f:
+    json.dump(data, f,  indent=2, ensure_ascii=False)
