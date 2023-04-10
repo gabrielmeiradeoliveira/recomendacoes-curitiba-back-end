@@ -6,13 +6,14 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 
 # Configurações do Firefox driver
-chromedriver_path = r'C:\Users\SAMSUNG\anaconda3\chromedriver.exe'
-driver = webdriver.Chrome(chromedriver_path)
-options = webdriver.ChromeOptions()
+# chromedriver_path = r'C:\Users\SAMSUNG\anaconda3\chromedriver.exe'
+# driver = webdriver.Chrome(chromedriver_path)
+# options = webdriver.ChromeOptions()
+driver = webdriver.Firefox()
+options = webdriver.FirefoxOptions()
 options.add_argument('start-maximized')
 options.add_argument('--disable-extensions')
 options.add_argument('--disable-popup-blocking')
-
 
 try:
     # Define o número de páginas que desejamos buscar
@@ -22,7 +23,8 @@ try:
     # Itera sobre a lista de números de página e coleta informações de cada página de resultados da busca
     while True:
         # Acessa a página de resultados da busca
-        driver.get(f'https://www.tripadvisor.com.br/Search?geo=303441&q=restaurante&queryParsed=true&searchSessionId=0011633f21f0c492.ssid&searchNearby=false&sid=28B8593E5467463C9F037D6A034A5E081680103846830&blockRedirect=true&rf=4&ssrc=m&o={numero_pagina}')
+        driver.get(
+            f'https://www.tripadvisor.com.br/Search?geo=303441&q=restaurante&queryParsed=true&searchSessionId=0011633f21f0c492.ssid&searchNearby=false&sid=28B8593E5467463C9F037D6A034A5E081680103846830&blockRedirect=true&rf=4&ssrc=m&o={numero_pagina}')
 
         # Espera até que a página carregue completamente
         time.sleep(random.randint(5, 10))
@@ -34,7 +36,7 @@ try:
             local_links.append(link['href'])
 
         # Coleta as informações dos locais em cada página de local
-       
+
         for link in local_links:
             driver.get('https://www.tripadvisor.com.br' + link)
 
@@ -43,7 +45,7 @@ try:
 
             # Coleta as informações do local
             soup = BeautifulSoup(driver.page_source, 'html.parser')
-            
+
             try:
                 name = soup.find('h1', {'class': 'HjBfq'}).text
             except AttributeError:
@@ -60,19 +62,22 @@ try:
                 address = None
 
             try:
-                cuisine_div = soup.find('div', {'class': 'UrHfr'}).find('div', text='COZINHAS')
+                cuisine_div = soup.find('div', {'class': 'UrHfr'}).find(
+                    'div', text='COZINHAS')
                 cuisine = cuisine_div.find_next_sibling('div').text
             except AttributeError:
                 cuisine = None
 
             try:
-                price_div = soup.find('div', {'class': 'UrHfr'}).find('div', text='FAIXA DE PREÇO')
+                price_div = soup.find('div', {'class': 'UrHfr'}).find(
+                    'div', text='FAIXA DE PREÇO')
                 price = price_div.find_next_sibling('div').text
             except AttributeError:
                 price = None
 
             try:
-                total_reviews = soup.find('span', {'class': 'AfQtZ'}).text.split()[0].replace('.', '')
+                total_reviews = soup.find('span', {'class': 'AfQtZ'}).text.split()[
+                    0].replace('.', '')
             except AttributeError:
                 total_reviews = None
 
@@ -91,7 +96,7 @@ try:
                 content = review.find('p', {'class': 'partial_entry'}).text
                 date = review.find('span', {'class': 'ratingDate'})['title']
                 reviews.append({'rating': rating, 'title': title,
-                            'content': content, 'date': date})
+                                'content': content, 'date': date})
             review_count += 1
             if review_count >= 5:
                 break
@@ -109,18 +114,13 @@ try:
             }
             locais.append(local)
 
-        numero_pagina+= 30
+        numero_pagina += 30
 
         # Salva as avaliações coletadas em um arquivo JSON externo
-        if numero_pagina > 90:
-            with open('locais.json', 'w', encoding='utf-8') as f:
+        if numero_pagina > 60:
+            with open('_locais.json', 'w', encoding='utf-8') as f:
                 json.dump(locais, f, ensure_ascii=False)
-                
-               
                 driver.quit()
-                
-except Exception as e:
-     print(e)
 
-    
-    
+except Exception as e:
+    print(e)
