@@ -117,7 +117,7 @@ try:
         numero_pagina += 30
 
         # Salva as avaliações coletadas em um arquivo JSON externo
-        if numero_pagina > 60:
+        if numero_pagina > 330:
             with open('_locais.json', 'w', encoding='utf-8') as f:
                 json.dump(locais, f, ensure_ascii=False)
                 driver.quit()
