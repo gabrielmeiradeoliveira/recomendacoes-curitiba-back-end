@@ -13,62 +13,15 @@ with open('_locais.json', encoding='utf-8') as f:
 # Inicializar o analisador de sentimentos
 sia = SentimentIntensityAnalyzer()
 
+# Ler o arquivo com as novas pontuações
+with open('_scores.json', 'r') as f:
+    new_scores = json.load(f)
+
+# Atualizar o objeto sia.lexicon com as novas pontuações
+sia.lexicon.update(new_scores)
+
 # Definir um filtro de idioma para as stopwords em português
 stopwords_pt = set(stopwords.words('portuguese'))
-
-# Definir novos scores de pontuação
-sia.lexicon.update({
-    'ótimo': 2.5,
-    'excelente': 2.5,
-    'perfeito': 2.5,
-    'maravilhoso': 2.5,
-    'incrível': 2.5,
-
-    'ruim': -2.5,
-    'horrível': -2.5,
-    'péssimo': -2.5,
-    'terrível': -2.5,
-    'desagradável': -2.5,
-    'inadequado': -2.5,
-    'inferior': -2.5,
-    'reprovado': -2.5,
-    'mau': -2.5,
-    'falho': -2.5,
-    'falha': -2.5,
-    'mediocre': -2.0,
-    'insuficientemente': -2.0,
-    'inferioridade': -2.0,
-    'não é bom': -1.5,
-    'não é ótimo': -2.5,
-    'não é excelente': -2.5,
-    'não é recomendado': -1.5,
-    'não é suficiente': -1.5,
-    'não é suficientemente': -1.5,
-    'não é aceitável': -1.5,
-    'não é aprovado': -2.5,
-    'não é razoável': -1.5,
-    'não é legal': -1.5,
-    'não é incrível': -2.5,
-    'não é adequado': -1.5,
-    'não é excepcional': -2.5,
-    'não é surpreendente': -1.5,
-    'não é fantástico': -2.5,
-    'não é bom o suficiente': -1.5,
-    'não é satisfatório': -1.5,
-    'não é agradável': -2.5,
-    'não é brilhante': -2.5,
-    'não é magnífico': -2.5,
-    'não é extraordinário': -2.5,
-    'não é recomendável': -1.5,
-    'muito bom': 2.5,
-    'muito legal': 2.0,
-    'muito recomendado': 2.0,
-    'muito aprovado': 2.0,
-    'muito adequado': 2.0,
-    'muito razoável': 2.0,
-    'muito aceitável': 2.0,
-    'muito surpreendente': 2.5,
-})
 
 # Iterar sobre cada restaurante
 for restaurante in data:
@@ -105,5 +58,5 @@ for restaurante in data:
     restaurante['sentimento_medio'] = sentimento_medio
 
 # Salvar o arquivo JSON modificado
-with open('restaurante_meu.json', 'w', encoding='utf-8') as f:
-    json.dump(data, f, indent=2, ensure_ascii=False, separators=(',', ':'))
+with open('_analise.json', 'w', encoding='utf-8') as f:
+    json.dump(data, f, ensure_ascii=False, indent=4)
