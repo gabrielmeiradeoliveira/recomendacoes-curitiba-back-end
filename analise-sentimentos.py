@@ -38,12 +38,12 @@ for restaurante in data:
         # Calcular o sentimento do texto limpo
         sentimento = sia.polarity_scores(texto_limpo)['compound']
         # Adicionar o sentimento à avaliação
-        avaliacao['sentimento'] = sentimento
+        avaliacao['sentiment'] = sentimento
     
     # Adicionar o número de avaliações positivas, negativas e neutras
     n_pos, n_neg, n_neu = 0, 0, 0
     for avaliacao in restaurante['reviews']:
-        sentimento = avaliacao.get('sentimento', 0)
+        sentimento = avaliacao.get('sentiment', 0)
         if sentimento > 0:
             n_pos += 1
         elif sentimento < 0:
@@ -53,9 +53,9 @@ for restaurante in data:
     restaurante.update({'n_pos': n_pos, 'n_neg': n_neg, 'n_neu': n_neu})
     
     # Adicionar o sentimento geral do restaurante
-    total_sentimento = sum([a['sentimento'] for a in restaurante['reviews']])
+    total_sentimento = sum([a['sentiment'] for a in restaurante['reviews']])
     sentimento_medio = total_sentimento / len(restaurante['reviews']) if len(restaurante['reviews']) > 0 else 0
-    restaurante['sentimento_medio'] = sentimento_medio
+    restaurante['sentiment_avange'] = sentimento_medio
 
 # Salvar o arquivo JSON modificado
 with open('_analise.json', 'w', encoding='utf-8') as f:
