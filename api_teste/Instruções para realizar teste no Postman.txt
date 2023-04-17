@@ -1,35 +1,22 @@
-Para testar este código no Postman, siga os seguintes passos:
+Abra o Postman e crie uma nova solicitação GET.
 
-Inicie o servidor Flask executando o seguinte comando no terminal:
+Na barra de endereço, insira a URL onde a API está sendo executada, por exemplo, http://localhost:5000/recomendar.
 
-	python nome_do_arquivo.py
-
-
-Abra o Postman e crie uma nova solicitação.
-
-Na caixa de URL, digite o seguinte endereço:
+Na seção de parâmetros, adicione dois parâmetros: callback e feedback.
 
 
-	http://localhost:5000/recomendar
+O valor do parâmetro callback deve ser o nome da função JavaScript que você deseja chamar com o resultado da API. O valor do parâmetro feedback deve ser uma frase contendo feedback sobre um restaurante, por exemplo, "gostei do restaurante".
 
 
-Selecione o método HTTP POST.
+Clique no botão "Enviar" para enviar a solicitação.
+Exemplo de solicitação GET:
 
-Na aba Body, selecione a opção raw e escolha JSON no menu suspenso.
+GET http://localhost:5000/recomendar?callback=minha_funcao&feedback=gostei%20do%20restaurante
 
-Digite o seguinte JSON no corpo da solicitação:
+Observe que o parâmetro feedback deve ser codificado como uma string válida para URL. No exemplo acima, o espaço foi codificado como %20.
 
+Se a API estiver sendo executada corretamente e sem erros, a resposta será um objeto JSONP contendo os 10 restaurantes mais recomendados, com base no feedback fornecido e nas avaliações disponíveis no arquivo _locais.json. O resultado será passado para a função JavaScript especificada no parâmetro callback.
 
-{
-    "feedback": "Eu amo pizza"
-}
-Lembre-se de que o texto em "feedback" pode ser substituído por qualquer outra entrada do usuário.
+Exemplo de resposta JSONP:
 
-Clique em "Send" para enviar a solicitação.
-
-Verifique a resposta da API na aba Body. A resposta deve conter uma mensagem de recomendação e uma lista de 10 restaurantes recomendados com base na entrada do usuário e na análise de sentimento.
-
-Repita os passos 6-8 com diferentes entradas do usuário para testar diferentes cenários e resultados.
-
-
-
+minha_funcao([["Restaurante A", 0.8], ["Restaurante B", 0.6], ["Restaurante C", 0.5], ... ])
