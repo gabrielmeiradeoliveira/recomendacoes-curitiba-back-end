@@ -1,10 +1,8 @@
 from flask import Flask, request, jsonify
 import json
-import re
 import nltk
 from nltk.sentiment import SentimentIntensityAnalyzer
 from nltk.corpus import stopwords
-
 
 nltk.download('punkt')
 
@@ -42,18 +40,14 @@ def recomendar():
     # Realizando análise de sentimentos da entrada do usuário
     sentimento = sia.polarity_scores(feedback)['compound']
 
-     # Transformar a entrada do usuário em uma expressão regular para pesquisa de frase completa
-    feedback_regex = re.escape(feedback)
-
-
     # Recomendação de restaurantes
     recomendados = []
     for restaurante in data:
-        # Análise de sentimento das avaliações que contêm a frase digitada pelo usuário
+        # Análise de sentimento das avaliações que contêm a palavra ou frase digitada pelo usuário
         avaliacoes = restaurante["reviews"]
-        sentimento_avaliacoes = [sia.polarity_scores(review["content"])["compound"] for review in avaliacoes if re.search(feedback_regex, review["content"].lower())]
+        sentimento_avaliacoes = [sia.polarity_scores(review["content"])["compound"] for review in avaliacoes if all(palavra in review["content"].lower() for palavra in feedback.split())]
         if sentimento_avaliacoes:
-            # Se houver pelo menos uma avaliação com a frase digitada, calcular a média de sentimentos
+            # Se houver pelo menos uma avaliação com a palavra ou frase digitada, calcular a média de sentimentos
             media_sentimento = sum(sentimento_avaliacoes) / len(sentimento_avaliacoes)
             # Adicionar o restaurante à lista de recomendados com base na média de sentimentos
             recomendados.append((restaurante, media_sentimento))
@@ -90,4 +84,3 @@ def recomendar():
 
 if __name__ == '__main__':
     app.run()
-
