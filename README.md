@@ -1,29 +1,22 @@
-# Análise de Sentimentos do TripAdvisor
+Abra o Postman e crie uma nova solicitação GET.
 
-Este projeto em Python tem como objetivo coletar dados do site TripAdvisor e fazer uma análise de sentimentos para recomendar um lugar. O código utiliza a biblioteca BeautifulSoup para analisar o HTML das páginas do TripAdvisor e a biblioteca Selenium para automatizar o processo de navegação pelas páginas.
+Na barra de endereço, insira a URL onde a API está sendo executada, por exemplo, http://localhost:5000/recomendar.
 
-# Pré-requisitos
+Na seção de parâmetros, adicione dois parâmetros: callback e feedback.
 
-Para executar este projeto, é necessário ter as seguintes bibliotecas instaladas:
 
-BeautifulSoup
-Selenium
-Pandas
-JSON
-Também é necessário ter o driver do Firefox instalado em seu sistema. Você pode baixá-lo em https://github.com/mozilla/geckodriver/releases.
+O valor do parâmetro callback deve ser o nome da função JavaScript que você deseja chamar com o resultado da API. O valor do parâmetro feedback deve ser uma frase contendo feedback sobre um restaurante, por exemplo, "gostei do restaurante".
 
-# Como usar
 
-Clone este repositório em seu computador
-Instale as bibliotecas necessárias
-Baixe o driver do Firefox e adicione o diretório do driver ao PATH do sistema
-Execute o arquivo tripadvisor.py
-Aguarde o processo de coleta e análise de dados ser concluído
-Verifique o arquivo locais.json gerado com as informações coletadas e analisadas
-# Como funciona
+Clique no botão "Enviar" para enviar a solicitação.
+Exemplo de solicitação GET:
 
-O código acessa a página de resultados da busca no TripAdvisor e coleta os links para as cinco primeiras páginas de restaurantes. Em seguida, o código visita cada página de restaurante, coleta as informações do local e as avaliações de usuários.
+GET http://localhost:5000/recomendar?callback=minha_funcao&feedback=gostei%20do%20restaurante
 
-As avaliações são submetidas a uma análise de sentimentos utilizando a biblioteca NLTK. A análise retorna uma pontuação de sentimento para cada avaliação, que é adicionada a uma lista de pontuações para o local. A pontuação final do local é calculada como a média das pontuações de todas as avaliações.
+Observe que o parâmetro feedback deve ser codificado como uma string válida para URL. No exemplo acima, o espaço foi codificado como %20.
 
-Ao final, o código recomenda o local com a pontuação de sentimento mais alta.
+Se a API estiver sendo executada corretamente e sem erros, a resposta será um objeto JSONP contendo os 10 restaurantes mais recomendados, com base no feedback fornecido e nas avaliações disponíveis no arquivo _locais.json. O resultado será passado para a função JavaScript especificada no parâmetro callback.
+
+Exemplo de resposta JSONP:
+
+minha_funcao([["Restaurante A", 0.8], ["Restaurante B", 0.6], ["Restaurante C", 0.5], ... ])
