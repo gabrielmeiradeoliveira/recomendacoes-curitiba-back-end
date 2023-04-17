@@ -3,6 +3,8 @@ import nltk
 from nltk.sentiment import SentimentIntensityAnalyzer
 from nltk.corpus import stopwords
 
+import re
+
 nltk.download('punkt')
 
 # Carregar os dados do arquivo JSON
@@ -28,14 +30,18 @@ feedback = input("Digite uma palavra ou frase relacionada à sua preferência de
 # Realizando análise de sentimentos da entrada do usuário
 sentimento = sia.polarity_scores(feedback)['compound']
 
+# Transformar a entrada do usuário em uma expressão regular para pesquisa de frase completa
+feedback_regex = re.escape(feedback)
+
+
 # Recomendação de restaurantes
 recomendados = []
 for restaurante in data:
-    # Análise de sentimento das avaliações que contêm a palavra ou frase digitada pelo usuário
+    # Análise de sentimento das avaliações que contêm a frase digitada pelo usuário
     avaliacoes = restaurante["reviews"]
-    sentimento_avaliacoes = [sia.polarity_scores(review["content"])["compound"] for review in avaliacoes if feedback in review["content"].lower() or any(palavra in review["content"].lower() for palavra in feedback.split())]
+    sentimento_avaliacoes = [sia.polarity_scores(review["content"])["compound"] for review in avaliacoes if re.search(feedback_regex, review["content"].lower())]
     if sentimento_avaliacoes:
-        # Se houver pelo menos uma avaliação com a palavra ou frase digitada, calcular a média de sentimentos
+        # Se houver pelo menos uma avaliação com a frase digitada, calcular a média de sentimentos
         media_sentimento = sum(sentimento_avaliacoes) / len(sentimento_avaliacoes)
         # Adicionar o restaurante à lista de recomendados com base na média de sentimentos
         recomendados.append((restaurante, media_sentimento))
