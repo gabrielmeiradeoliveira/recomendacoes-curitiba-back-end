@@ -40,41 +40,40 @@ def recomendar():
     # Realizando análise de sentimentos da entrada do usuário
     sentimento = sia.polarity_scores(feedback)['compound']
 
-    # Recomendação de restaurantes
     recomendados = []
     for restaurante in data:
-        # Análise de sentimento das avaliações que contêm a palavra ou frase digitada pelo usuário
+        # Análise de sentimento das avaliações que contêm as palavras digitadas pelo usuário
         avaliacoes = restaurante["reviews"]
-        sentimento_avaliacoes = [sia.polarity_scores(review["content"])["compound"] for review in avaliacoes if all(palavra in review["content"].lower() for palavra in feedback.split())]
+        
+        sentimento_avaliacoes = []
+        for review in avaliacoes:
+            conteudo = review["content"].lower()
+            if all(palavra in conteudo for palavra in feedback.split()):
+                # Se todas as palavras da entrada do usuário estão contidas na avaliação, calcular o sentimento
+                sentimento_avaliacoes.append(sia.polarity_scores(conteudo)["compound"])
         if sentimento_avaliacoes:
-            # Se houver pelo menos uma avaliação com a palavra ou frase digitada, calcular a média de sentimentos
+            # Se houver pelo menos uma avaliação com todas as palavras da entrada do usuário, calcular a média de sentimentos
             media_sentimento = sum(sentimento_avaliacoes) / len(sentimento_avaliacoes)
             # Adicionar o restaurante à lista de recomendados com base na média de sentimentos
             recomendados.append((restaurante, media_sentimento))
     
-     # Classificando a lista de restaurantes recomendados com base na média de sentimentos
+    # Classificando a lista de restaurantes recomendados com base na média de sentimentos
     if recomendados:
-        media_sentimentos = sum([r[1] for r in recomendados])/len(recomendados)
-        recomendados = [(r[0], r[1], sentimento - r[1]) for r in recomendados]
-        recomendados = sorted(recomendados, key=lambda r: r[2])
-        recomendados = [(r[0], r[1]) for r in recomendados]
-
-    # Classificando os restaurantes de acordo com o sentimento da entrada do usuário
-    if sentimento > 0:
-        # Para entradas positivas, classificar em ordem decrescente de média de sentimentos
         recomendados = sorted(recomendados, key=lambda r: r[1], reverse=True)
-    elif sentimento < 0:
-        # Para entradas negativas, classificar em ordem crescente de média de sentimentos
-        recomendados = sorted(recomendados, key=lambda r: r[1])
-    else:
-        # Caso o sentimento seja neutro, manter a ordem original da lista
-        pass
-
+    
+    # Retornando os restaurantes com sentimento mais positivo
+    top_recomendados = []
+    for restaurante, media_sentimento in recomendados:
+        if media_sentimento > 0:
+            top_recomendados.append((restaurante, media_sentimento))
+        else:
+            break
+    
     # Retornando os top 10 restaurantes recomendados
-    top10_recomendados = recomendados[:10]
+    top5_recomendados = top_recomendados[:5]
 
     # Criar um objeto JSON com os restaurantes recomendados
-    data_json = json.dumps(top10_recomendados)
+    data_json = json.dumps(top5_recomendados)
 
     # Criar a resposta JSONP, adicionando a função de callback ao início do objeto JSON
     response = callback + '(' + data_json + ')'
