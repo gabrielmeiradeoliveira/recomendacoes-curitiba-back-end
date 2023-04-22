@@ -4,7 +4,6 @@ import nltk
 from nltk.sentiment import SentimentIntensityAnalyzer
 from nltk.corpus import stopwords
 
-nltk.download('punkt')
 
 # Carregar os dados do arquivo JSON
 try:
@@ -16,6 +15,18 @@ except Exception as e:
 
 # Inicializar o analisador de sentimentos
 sia = SentimentIntensityAnalyzer()
+
+# #Trecho que cria o novo JSON de análise de sentimentos
+
+# for restaurante in data:
+#     for review in restaurante["reviews"]:
+#         conteudo = review["content"].lower()
+#         sentimento = sia.polarity_scores(conteudo)["compound"]
+#         review["sentiment"] = sentimento
+
+# # Salvar o arquivo JSON atualizado com a nova chave "sentiment"
+# with open('_locais_com_sentimento.json', 'w', encoding='utf-8') as f:
+#     json.dump(data, f, ensure_ascii=False, indent=4)
 
 # Carregar o arquivo com as novas pontuações
 try:
@@ -29,7 +40,7 @@ except Exception as e:
 # Definir um filtro de idioma para as stopwords em português
 stopwords_pt = set(stopwords.words('portuguese'))
 
-app = Flask(__name__)
+app = Flask(_name_)
 
 @app.route('/recomendar', methods=['GET'])
 def recomendar():
@@ -81,5 +92,5 @@ def recomendar():
     # Retornar a resposta JSONP
     return response
 
-if __name__ == '__main__':
+if _name_ == '_main_':
     app.run()
