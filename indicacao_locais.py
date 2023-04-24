@@ -1,37 +1,82 @@
+from flask import Flask, request
 import json
-from textblob import TextBlob
+from nltk.sentiment import SentimentIntensityAnalyzer
+from nltk.corpus import stopwords
 
-# Carregando o JSON em uma variável
-with open("_analise.json", encoding='utf-8') as f:
-    dados = json.load(f)
+# Carregar os dados do arquivo JSON
+try:
+    with open('_locais.json', encoding='utf-8') as f:
+        data = json.load(f)
+except Exception as e:
+    print("Erro ao carregar o arquivo '_locais.json':", e)
+    data = []
 
-# Definindo a frase ou palavra do usuário
-feedback = input("Digite uma palavra ou frase relacionada à sua preferência de restaurante: ")
+# Inicializar o analisador de sentimentos
+sia = SentimentIntensityAnalyzer()
 
-# Realizando análise de sentimentos
-sentimento = TextBlob(feedback).sentiment.polarity
-if sentimento > 0:
-    print("O feedback do usuário é positivo.")
-elif sentimento == 0:
-    print("O feedback do usuário é neutro.")
-else:
-    print("O feedback do usuário é negativo.")
+# Carregar o arquivo com as novas pontuações
+try:
+    with open('_scores.json', encoding='utf-8') as f:
+        new_scores = json.load(f)
+    # Atualizar o objeto sia.lexicon com as novas pontuações
+    sia.lexicon.update(new_scores)
+except Exception as e:
+    print("Erro ao carregar o arquivo '_scores.json':", e)
 
-# Recomendação de restaurantes
-recomendados = []
-for restaurante in dados:
-    for review in restaurante["reviews"]:
-        if any(palavra in review["content"].lower() for palavra in feedback.split()):
-            recomendados.append(restaurante)
+# Definir um filtro de idioma para as stopwords em português
+stopwords_pt = set(stopwords.words('portuguese'))
+
+app = Flask(__name__)
+
+@app.route('/recomendar', methods=['GET'])
+def recomendar():
+    # Receber a entrada do usuário em formato de JSONP
+    callback = request.args.get('callback')
+    feedback = request.args.get('feedback')
+
+    # Realizando análise de sentimentos da entrada do usuário
+    sentimento = sia.polarity_scores(feedback)['compound']
+
+    recomendados = []
+    for restaurante in data:
+        # Análise de sentimento das avaliações que contêm as palavras digitadas pelo usuário
+        avaliacoes = restaurante["reviews"]
+        
+        sentimento_avaliacoes = []
+        for review in avaliacoes:
+            conteudo = review["content"].lower()
+            if all(palavra in conteudo for palavra in feedback.split()):
+                # Se todas as palavras da entrada do usuário estão contidas na avaliação, calcular o sentimento
+                sentimento_avaliacoes.append(sia.polarity_scores(conteudo)["compound"])
+        if sentimento_avaliacoes:
+            # Se houver pelo menos uma avaliação com todas as palavras da entrada do usuário, calcular a média de sentimentos
+            media_sentimento = sum(sentimento_avaliacoes) / len(sentimento_avaliacoes)
+            # Adicionar o restaurante à lista de recomendados com base na média de sentimentos
+            recomendados.append((restaurante, media_sentimento))
+    
+    # Classificando a lista de restaurantes recomendados com base na média de sentimentos
+    if recomendados:
+        recomendados = sorted(recomendados, key=lambda r: r[1], reverse=True)
+    
+    # Retornando os restaurantes com sentimento mais positivo
+    top_recomendados = []
+    for restaurante, media_sentimento in recomendados:
+        if media_sentimento > 0:
+            top_recomendados.append((restaurante, media_sentimento))
+        else:
             break
+    
+    # Retornando os top 10 restaurantes recomendados
+    top5_recomendados = top_recomendados[:5]
 
-# Classificando a lista de restaurantes recomendados com base na média de avaliação
-recomendados = sorted(recomendados, key=lambda r: float(r["average_rating"].replace("\xa0", "")), reverse=True)
+    # Criar um objeto JSON com os restaurantes recomendados
+    data_json = json.dumps(top5_recomendados)
 
-# Apresentando os top 10 restaurantes recomendados
-if recomendados:
-    print("Recomendamos os seguintes restaurantes:")
-    for restaurante in recomendados[:10]:
-        print(restaurante["name"] + " - Avaliação: " + restaurante["average_rating"] + "\n- Endereço: " + restaurante["address"] + "\n")
-else:
-    print("Não encontramos nenhum restaurante que atenda às suas preferências.")
+    # Criar a resposta JSONP, adicionando a função de callback ao início do objeto JSON
+    response = callback + '(' + data_json + ')'
+
+    # Retornar a resposta JSONP
+    return response
+
+if __name__ == '__main__':
+    app.run(port=8000)

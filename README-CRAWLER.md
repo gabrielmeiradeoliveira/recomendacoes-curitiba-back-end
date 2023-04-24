@@ -6,11 +6,11 @@ Este projeto em Python tem como objetivo coletar dados do site TripAdvisor e faz
 
 Para executar este projeto, é necessário ter as seguintes bibliotecas instaladas:
 
-BeautifulSoup
-Selenium
-Pandas
-JSON
-Também é necessário ter o driver do Firefox instalado em seu sistema. Você pode baixá-lo em https://github.com/mozilla/geckodriver/releases.
+- BeautifulSoup
+- Selenium
+- Pandas
+- JSON
+- Também é necessário ter o driver do Firefox instalado em seu sistema. Você pode baixá-lo em https://github.com/mozilla/geckodriver/releases.
 
 # Como usar
 
@@ -20,6 +20,7 @@ Baixe o driver do Firefox e adicione o diretório do driver ao PATH do sistema
 Execute o arquivo tripadvisor.py
 Aguarde o processo de coleta e análise de dados ser concluído
 Verifique o arquivo locais.json gerado com as informações coletadas e analisadas
+
 # Como funciona
 
 O código acessa a página de resultados da busca no TripAdvisor e coleta os links para as cinco primeiras páginas de restaurantes. Em seguida, o código visita cada página de restaurante, coleta as informações do local e as avaliações de usuários.
