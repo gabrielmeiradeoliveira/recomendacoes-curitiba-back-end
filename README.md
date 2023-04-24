@@ -1,6 +1,9 @@
-# Documentação do Código
+Link: [Coleta de dados do tripadvisor](https://github.com/GabrielMeira01/recomendacoes-curitiba/blob/main/README-CRAWLER.md)
 
-[Documentação do crawler do tripadvisor](https://github.com/GabrielMeira01/recomendacoes-curitiba/blob/main/README-CRAWLER.md)
+## Fluxograma da aplicação
+<p align="center">
+  <img width="651" alt="Screenshot 2023-04-23 at 23 52 44" src="https://user-images.githubusercontent.com/80929981/233889890-de5c82b4-4328-434e-b348-41a29e299fb6.png">
+</p>
 
 ## Sobre o Código
 
@@ -37,3 +40,4 @@ O servidor irá retornar uma resposta JSONP contendo os top 5 restaurantes recom
 ## Considerações Finais
 
 A documentação apresentada é um guia básico para entender e utilizar o código. É importante lembrar que o código pode ser modificado e adaptado de acordo com as necessidades do projeto. Em caso de dúvidas ou sugestões, entre em contato com o autor do código. 
+
