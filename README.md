@@ -1,4 +1,4 @@
-Link: [Coleta de dados do tripadvisor](https://github.com/GabrielMeira01/recomendacoes-curitiba/blob/main/README-CRAWLER.md)
+Link: [Coleta de dados com tripadvisor](https://github.com/GabrielMeira01/recomendacoes-curitiba/blob/main/README-CRAWLER.md)
 
 ## Fluxograma da aplicação
 <p align="center">
