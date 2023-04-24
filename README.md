@@ -1,5 +1,7 @@
 # Documentação do Código
 
+[Documentação do crawler do tripadvisor](https://github.com/GabrielMeira01/recomendacoes-curitiba/blob/main/README-CRAWLER.md)
+
 ## Sobre o Código
 
 O código apresentado é um servidor Flask que disponibiliza uma rota para recomendar restaurantes com base nas avaliações dos usuários. O servidor realiza a análise de sentimentos das avaliações dos restaurantes para encontrar os mais recomendados.
